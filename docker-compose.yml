@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: simple-golang-echo
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  simple-golang-echo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      MYSQL_DSN: root:secret@tcp(host.docker.internal:3306)/simple-golang-echo?parseTime=true
+    ports:
+      - "1323:1323"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
